@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 
 class FlaskExercise:
@@ -28,4 +28,43 @@ class FlaskExercise:
 
     @staticmethod
     def configure_routes(app: Flask) -> None:
-        pass
+        db = {}
+
+        # POST /user - создание пользователя
+        def create_user():
+            json_data = request.get_json(force=True)
+            name = json_data.get("name", "")
+            if not name:
+                return {"errors": {"name": "This field is required"}}, 422
+            db[name] = {}
+            return {"data": f"User {name} is created!"}, 201
+
+        # GET /user/<name> - чтение пользователя
+        def get_user(name):
+            if name not in db:
+                return {}, 404
+            return {"data": f"My name is {name}"}, 200
+
+        # PATCH /user/<name> - обновление пользователя
+        def update_user(name):
+            if name not in db:
+                return {}, 404
+            json_data = request.get_json(force=True)
+            new_name = json_data.get("name")
+            if new_name:
+                db[new_name] = db.pop(name)
+                return {"data": f"My name is {new_name}"}, 200
+            return {"errors": {"name": "This field is required"}}, 422
+
+        # DELETE /user/<name> - удаление пользователя
+        def delete_user(name):
+            if name not in db:
+                return "", 404
+            db.pop(name)
+            return "", 204
+
+        # Добавление URL маршрутов для каждого метода
+        app.add_url_rule("/user", view_func=create_user, methods=["POST"])
+        app.add_url_rule("/user/<name>", view_func=get_user, methods=["GET"])
+        app.add_url_rule("/user/<name>", view_func=update_user, methods=["PATCH"])
+        app.add_url_rule("/user/<name>", view_func=delete_user, methods=["DELETE"])
