@@ -4,28 +4,25 @@ from typing import Union
 class MapExercise:
     @staticmethod
     def rating(list_of_movies: list[dict]) -> float:
-        """
-        !!Задание нужно решить используя map!!
-        Посчитать средний рейтинг фильмов (rating_kinopoisk) у которых две или больше стран.
-        Фильмы у которых рейтинг не задан или равен 0 не учитывать в расчете среднего.
+        rating_list = []
 
-        :param list_of_movies: Список фильмов.
-        Ключи словаря: name, rating_kinopoisk, rating_imdb, genres, year, access_level, country
-        :return: Средний рейтинг фильмов у которых две или больше стран
-        """
-        pass
+        for item in list_of_movies:
+            counter = item.get('country', ' ')
+            if (item['rating_kinopoisk'] != ''
+                    and item['rating_kinopoisk'] != '0' and counter.count(',') >= 1):
+                rating_list.append(item['rating_kinopoisk'])
+
+        str_to_float = list(map(float, rating_list))
+
+        return sum(str_to_float) / len(str_to_float)
 
     @staticmethod
     def chars_count(list_of_movies: list[dict], rating: Union[float, int]) -> int:
-        """
-        !!Задание нужно решить используя map!!
-        Посчитать количество букв 'и' в названиях всех фильмов с рейтингом (rating_kinopoisk) больше
-        или равным заданному значению
+        rating_films = filter(lambda item: item['rating_kinopoisk'] != '', list_of_movies)
 
-        :param list_of_movies: Список фильмов
-        Ключи словаря: name, rating_kinopoisk, rating_imdb, genres, year, access_level, country
-        :param rating: Заданный рейтинг
-        :return: Количество букв 'и' в названиях всех фильмов с рейтингом больше
-        или равным заданному значению
-        """
-        pass
+        count_map = map(lambda movie:
+                        movie['name'].count('и')
+                        if float(movie['rating_kinopoisk']) >= rating else 0,
+                        rating_films)
+
+        return sum(count_map)
